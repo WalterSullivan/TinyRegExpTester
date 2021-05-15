@@ -93,7 +93,7 @@ Window::Window(QWidget *parent) : QWidget(parent) {
 	mainLayout->setContentsMargins(5, 5, 5, 5);
 
 	this->setLayout(mainLayout);
-	this->setWindowTitle("Tiny RegEx Tester");
+	this->setWindowTitle("Tiny RegExp Tester");
 }
 
 void Window::sl_startSearch() {
