@@ -147,9 +147,7 @@ void Window::sl_startSearch() {
 				  ". Match: \"" +
 				  rx.cap(0) +
 				  "\" At: " +
-				  QString::number(pos) +
-				  ", Sample: \"" +
-				  sample + "\"";
+				  QString::number(pos);
 
 		if (rx.captureCount() > 0) {
 			result += "\nCaps:\n";
