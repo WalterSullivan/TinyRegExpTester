@@ -144,16 +144,15 @@ void Window::sl_startSearch() {
 		if (needDoubleBreak) {result += "\n\n";}
 
 		result += QString::number(matchIndex) +
-				  ". Match:\t[" +
+				  ". Match: \"" +
 				  rx.cap(0) +
-				  "]\n" +
-				  "Sample:\t[" +
-				  sample + "]\n" +
-				  "At:\t" +
-				  QString::number(pos) + "\n";
+				  "\" At: " +
+				  QString::number(pos) +
+				  ", Sample: \"" +
+				  sample + "\"";
 
 		if (rx.captureCount() > 0) {
-			result += "Caps:\n";
+			result += "\nCaps:\n";
 
 			for (int i = 1; i <= rx.captureCount(); i++) {
 				if (i > 1) {result += "\n";}
