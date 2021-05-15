@@ -180,7 +180,7 @@ void Window::sl_startSearch() {
 	format.setFont(inputTextEdit->font());
 	format.setBackground(QBrush(Qt::yellow));
 
-	QObject::disconnect(inputTextEdit, SIGNAL(textChanged()), this, SLOT(sl_startSearch()));
+	inputTextEdit->blockSignals(true);
 	for (std::list<std::pair<int, int> >::iterator it = matches.begin(); it != matches.end(); it++) {
 		QTextCursor cursor(inputTextEdit->textCursor());
 		cursor.setPosition((*it).first);
@@ -190,7 +190,7 @@ void Window::sl_startSearch() {
 		cursor.setCharFormat(format);
 		cursor.endEditBlock();
 	}
-	QObject::connect(inputTextEdit, SIGNAL(textChanged()), this, SLOT(sl_startSearch()));
+	inputTextEdit->blockSignals(false);
 
 }
 
