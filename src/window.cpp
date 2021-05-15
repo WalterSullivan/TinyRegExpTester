@@ -166,7 +166,7 @@ void Window::sl_startSearch() {
 		matches.push_back(std::pair<int, int>(pos, rx.matchedLength()));
 
 
-		pos += rx.matchedLength();
+		pos += rx.matchedLength() == 0 ? 1 : rx.matchedLength();
 	}
 
 	if (result.isEmpty()) {
