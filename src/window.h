@@ -34,15 +34,19 @@ private:
 	QCheckBox*		greedyMatchingCheckBox;
 	QLabel*			regexpLineEditLabel;
 	QLineEdit*		regexpLineEdit;
+	QLabel*			replaceEditLabel;
+	QLineEdit*		replaceLineEdit;
 	QLabel*			resultsCountLabel;
 	QTextEdit*		resultsTextEdit;
+	QLabel*			replaceResultLabel;
+	QTextEdit*		replaceTextEdit;
 
 	QSplitter*		splitter;
 
 	void ClearInputBoxFormat();
 
 public:
-    explicit Window(QWidget *parent = 0);
+	explicit Window(QWidget *parent = 0);
 
 public slots:
 private slots:

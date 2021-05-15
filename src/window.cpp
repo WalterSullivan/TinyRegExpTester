@@ -38,22 +38,29 @@ Window::Window(QWidget *parent) : QWidget(parent) {
 	regexpLineEdit->setFont(font);
 	QObject::connect(regexpLineEdit, SIGNAL(textChanged(QString)), this, SLOT(sl_startSearch()));
 
+	replaceEditLabel = new QLabel("Replace:");
+	replaceLineEdit = new QLineEdit();
+	replaceLineEdit->setFont(font);
+	QObject::connect(replaceLineEdit, SIGNAL(textChanged(QString)), this, SLOT(sl_startSearch()));
+
 	caseSensitiveCheckBox = new QCheckBox("Case sensitive");
 	QObject::connect(caseSensitiveCheckBox, SIGNAL(clicked()), this, SLOT(sl_startSearch()));
 	greedyMatchingCheckBox = new QCheckBox("Greedy matching");
 	QObject::connect(greedyMatchingCheckBox, SIGNAL(clicked()), this, SLOT(sl_startSearch()));
 
-	QGridLayout* topWidgetLayout = new QGridLayout();
-	topWidgetLayout->addWidget(inputTextEditLabel, 0, 0, 1, 2);
-	topWidgetLayout->addWidget(inputTextEdit, 1, 0, 1, 2);
-	topWidgetLayout->addWidget(regexpLineEditLabel, 2, 0, 1, 2);
-	topWidgetLayout->addWidget(regexpLineEdit, 3, 0, 1, 2);
-	topWidgetLayout->addWidget(caseSensitiveCheckBox, 4, 0, 1, 1);
-	topWidgetLayout->addWidget(greedyMatchingCheckBox, 4, 1, 1, 1);
-	topWidgetLayout->setContentsMargins(3, 3, 3, 3);
+	QGridLayout* searchWidgetLayout = new QGridLayout();
+	searchWidgetLayout->addWidget(inputTextEditLabel, 0, 0, 1, 2);
+	searchWidgetLayout->addWidget(inputTextEdit, 1, 0, 1, 2);
+	searchWidgetLayout->addWidget(regexpLineEditLabel, 2, 0, 1, 2);
+	searchWidgetLayout->addWidget(regexpLineEdit, 3, 0, 1, 2);
+	searchWidgetLayout->addWidget(replaceEditLabel, 4, 0, 1, 2);
+	searchWidgetLayout->addWidget(replaceLineEdit, 5, 0, 1, 2);
+	searchWidgetLayout->addWidget(caseSensitiveCheckBox, 6, 0, 1, 1);
+	searchWidgetLayout->addWidget(greedyMatchingCheckBox, 6, 1, 1, 1);
+	searchWidgetLayout->setContentsMargins(3, 3, 3, 3);
 
-	QWidget* topWidget = new QWidget();
-	topWidget->setLayout(topWidgetLayout);
+	QWidget* searchWidget = new QWidget();
+	searchWidget->setLayout(searchWidgetLayout);
 
 	// Create bottom widget
 	resultsCountLabel = new QLabel();
@@ -64,12 +71,27 @@ Window::Window(QWidget *parent) : QWidget(parent) {
 	resultsTextEdit->setAcceptRichText(true);
 	resultsTextEdit->setReadOnly(true);
 
-	QWidget* bottomWidget = new QWidget();
-	QVBoxLayout* bottomWidgetLayout = new QVBoxLayout();
-	bottomWidgetLayout->addWidget(resultsCountLabel);
-	bottomWidgetLayout->addWidget(resultsTextEdit);
-	bottomWidgetLayout->setContentsMargins(3, 3, 3, 3);
-	bottomWidget->setLayout(bottomWidgetLayout);
+	replaceResultLabel = new QLabel();
+	replaceResultLabel->setText("Replace result:");
+
+	replaceTextEdit = new QTextEdit();
+	replaceTextEdit->setFont(font);
+	replaceTextEdit->setAcceptRichText(true);
+	replaceTextEdit->setReadOnly(true);
+
+	QWidget* resultsWidget = new QWidget();
+	QVBoxLayout* resultsWidgetLayout = new QVBoxLayout();
+	resultsWidgetLayout->addWidget(resultsCountLabel);
+	resultsWidgetLayout->addWidget(resultsTextEdit);
+	resultsWidgetLayout->setContentsMargins(3, 3, 3, 3);
+	resultsWidget->setLayout(resultsWidgetLayout);
+
+	QWidget* replaceWidget = new QWidget();
+	QVBoxLayout* replaceWidgetLayout = new QVBoxLayout();
+	replaceWidgetLayout->addWidget(replaceResultLabel);
+	replaceWidgetLayout->addWidget(replaceTextEdit);
+	replaceWidgetLayout->setContentsMargins(3, 3, 3, 3);
+	replaceWidget->setLayout(replaceWidgetLayout);
 
 	// Create splitter
 	splitter = new QSplitter(Qt::Vertical);
@@ -77,14 +99,24 @@ Window::Window(QWidget *parent) : QWidget(parent) {
 
 	splitter->setOpaqueResize(false);
 	splitter->setChildrenCollapsible(false);
-	splitter->addWidget(topWidget);
-	splitter->addWidget(bottomWidget);
+	splitter->addWidget(searchWidget);
+	splitter->addWidget(resultsWidget);
+	splitter->addWidget(replaceWidget);
+
 
 	QSplitterHandle *handle = splitter->handle(1);
 	QHBoxLayout *handleLayout = new QHBoxLayout(handle);
 	handleLayout->setMargin(2);
 
 	QFrame* line = new QFrame(handle);
+	line->setFrameShape(QFrame::Box);
+	handleLayout->addWidget(line);
+
+	handle = splitter->handle(2);
+	handleLayout = new QHBoxLayout(handle);
+	handleLayout->setMargin(2);
+
+	line = new QFrame(handle);
 	line->setFrameShape(QFrame::Box);
 	handleLayout->addWidget(line);
 
@@ -125,6 +157,8 @@ void Window::sl_startSearch() {
 
 	std::list<std::pair<int, int> > matches;
 
+	replaceTextEdit->setPlainText("");
+
 	while ((pos = rx.indexIn(str, pos)) != -1) {
 		matchIndex++;
 
@@ -164,6 +198,18 @@ void Window::sl_startSearch() {
 
 
 		pos += rx.matchedLength() == 0 ? 1 : rx.matchedLength();
+
+		// Replace
+		if (replaceLineEdit->text().length() > 0) {
+			QString replacement = replaceLineEdit->text();
+
+			for (int i = 1; i <= rx.captureCount(); i++) {
+				const QString backreference = QString("\\%1").arg(i);
+				replacement.replace(backreference, rx.cap(i));
+			}
+
+			replaceTextEdit->insertPlainText(replacement);
+		}
 	}
 
 	if (result.isEmpty()) {
